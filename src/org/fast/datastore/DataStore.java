@@ -51,16 +51,16 @@ public class DataStore {
 	
 	private Object computeValue(String xId, List<WriteOperation> logs) {
 		Object obj = xId2InitialObj.get(xId);
-		if (logs != null) {
-			for (WriteOperation wo: logs) {
-				//System.out.println("ds: applying wo in ds");
-				obj = wo.applyThisWO(obj);
-			}
+		if (logs != null && !logs.isEmpty()) {
+			WriteOperation wo = logs.get(logs.size() - 1);
+			Object oldObj = wo.getOldObj();
+			obj = wo.applyThisWO(oldObj);
 		}
 		return obj;
 	}
 	
 	public Object getValue(String xId) {
+		
 		//System.out.println("ds: start getValue");
 		Object obj = computeValue(xId, this.xId2Log.get(xId));
 		//System.out.println("ds: finish getValue");

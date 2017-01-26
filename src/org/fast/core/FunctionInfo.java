@@ -17,6 +17,10 @@ public class FunctionInfo {
 		this.functionId = functionId;
 	}
 	
+	public void clearOPs() {
+		this.operations.clear();
+	}
+	
 	public LNode getLNode(String xId) {
 		for (Operation op: operations) {
 			if (op instanceof TestOperation) {

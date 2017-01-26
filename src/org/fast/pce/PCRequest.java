@@ -78,8 +78,9 @@ public class PCRequest extends Function{
 	
 	@Override
 	public void run() {
+		this.getFunctionInfo().clearOPs();
 		
-		System.out.println("pcr: running " + getFunctionInfo().getFunctionId());
+		//System.out.println("pcr: running " + getFunctionInfo().getFunctionId());
 		List<Link> links = getTopology();
 		
 		List<Link> availableLinks = new LinkedList<Link>();
@@ -100,6 +101,6 @@ public class PCRequest extends Function{
 				link.reduceBw(this, this.bw);
 			}
 		}
-		System.out.println("pcr: finish running " + getFunctionInfo().getFunctionId());
+		//System.out.println("pcr: finish running " + getFunctionInfo().getFunctionId());
 	}
 }

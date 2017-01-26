@@ -76,13 +76,13 @@ public class Link {
 		if (currentBW >= bw) {
 			TestOperation to = new TestOperation(this.id, 
 					this.getAttributeId(Link.Attribute.BANDWIDTH), 
-					OperatorType.GEQ, bw, currentBW);
+					OperatorType.GEQ, bw, currentBW, f.getFunctionInfo());
 			f.addOperation(to);
 			return true;
 		} else {
 			TestOperation to = new TestOperation(this.id, 
 					this.getAttributeId(Link.Attribute.BANDWIDTH), 
-					OperatorType.L, bw, currentBW);
+					OperatorType.L, bw, currentBW, f.getFunctionInfo());
 			f.addOperation(to);
 			return false;
 		}
@@ -90,7 +90,8 @@ public class Link {
 	
 	public void reduceBw(Function f, int bw) {
 		WriteOperation wo = new WriteOperation(DSUtil.constructXId(id, getAttributeId(Attribute.BANDWIDTH)), 
-				f.getFunctionInfo().getFunctionId(), WOType.INC, -bw);
+				f.getFunctionInfo().getFunctionId(), WOType.INC, -bw, 
+				ds.getValue(DSUtil.constructXId(id, getAttributeId(Attribute.BANDWIDTH))));
 		f.addOperation(wo);
 		ds.applyWO(DSUtil.constructXId(id, getAttributeId(Attribute.BANDWIDTH)), wo);
 	}

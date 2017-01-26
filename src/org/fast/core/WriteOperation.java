@@ -1,5 +1,7 @@
 package org.fast.core;
 
+import org.fast.tdst.DataChange;
+
 public class WriteOperation extends Operation{
 
 	private int fId;
@@ -28,11 +30,26 @@ public class WriteOperation extends Operation{
 	
 	private Object value;
 	
-	public WriteOperation(String xId, int fId, WOType woType, Object value) {
+	private Object oldValue;
+	
+	public WriteOperation(String xId, int fId, WOType woType, Object value, Object oldValue) {
 		this.xId = xId;
 		this.fId = fId;
 		this.woType = woType;
 		this.value = value;
+		this.oldValue = oldValue;
+	}
+	
+	public Object getNewObj() {
+		return applyThisWO(oldValue);
+	}
+	
+	public Object getOldObj() {
+		return oldValue;
+	}
+	
+	public DataChange getRevDC() {
+		return new DataChange(this.xId, (Integer) this.getNewObj(), (Integer) this.oldValue);
 	}
 	
 	public Object applyThisWO(Object obj) {

@@ -50,7 +50,7 @@ public class Function {
 	
 	// just apply write operations
 	public void virtualRun(DataStore ds) {
-		System.out.println("virtual running: " + this.fInfo.getFunctionId());
+		//System.out.println("function: virtual running " + this.fInfo.getFunctionId());
 		for (Operation op: fInfo.getOPs()) {
 			if (op instanceof WriteOperation) {
 				WriteOperation wo = (WriteOperation) op;

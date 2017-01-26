@@ -1,5 +1,7 @@
 package org.fast.tdst;
 
+import org.fast.core.FunctionInfo;
+
 public class LNode extends TDSTNode{
 	
 	// t - x comparing with 0
@@ -22,11 +24,18 @@ public class LNode extends TDSTNode{
 	
 	private INode fatherNode;
 	
-	public LNode(int id, int t, int x, OperatorType ot) {
+	private FunctionInfo fi;
+	
+	public LNode(int id, int t, int x, OperatorType ot, FunctionInfo fi) {
 		this.id = id;
 		this.t = t;
 		this.x = x;
 		this.ot = ot;
+		this.fi = fi;
+	}
+	
+	public FunctionInfo getFunctionInfo() {
+		return this.fi;
 	}
 	
 	public int getFunctionId() {

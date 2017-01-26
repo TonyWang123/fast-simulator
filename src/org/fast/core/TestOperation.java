@@ -16,12 +16,16 @@ public class TestOperation extends Operation{
 	
 	private Object realValue;
 	
-	public TestOperation(int dataId, int attributeId, OperatorType operator, Object testValue, Object realValue) {
+	private FunctionInfo fi;
+	
+	public TestOperation(int dataId, int attributeId, OperatorType operator, Object testValue, 
+			Object realValue, FunctionInfo fi) {
 		this.dataId = dataId;
 		this.attributeId = attributeId;
 		this.operator = operator;
 		this.testValue = testValue;
 		this.realValue = realValue;
+		this.fi = fi;
 	}
 	
 	public boolean isThisX(String xId) {
@@ -31,7 +35,7 @@ public class TestOperation extends Operation{
 	}
 	
 	public LNode convert2LNode(int functionId) {
-		LNode lNode = new LNode(functionId, (Integer) testValue, (Integer) realValue, operator);
+		LNode lNode = new LNode(functionId, (Integer) testValue, (Integer) realValue, operator, fi);
 		return lNode;
 	}
 	

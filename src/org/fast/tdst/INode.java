@@ -61,6 +61,34 @@ public class INode extends TDSTNode{
 		this.maxNegD = tempMaxNegD;
 	}
 	
+	private void updateContentOnlyConsideringL(LNode lNode) {
+		if (lNode.getD() > 0) {
+			this.minPosD = lNode.getD();
+			this.maxNegD = Integer.MIN_VALUE;
+		} else {
+			this.minPosD = Integer.MAX_VALUE;
+			this.maxNegD = lNode.getD();
+		}
+	}
+	
+	private void updateContentOnlyConsideringI(INode iNode) {
+		this.minPosD = iNode.minPosD;
+		this.maxNegD = iNode.maxNegD;
+	}
+	
+	public void updateMinMaxContent(TDSTNode node) {
+		if (node instanceof LNode) {
+			LNode lNode = (LNode) node;
+			updateContentOnlyConsideringL(lNode);
+		} else {
+			INode iNode = (INode) node;
+			updateContentOnlyConsideringI(iNode);
+		}
+		if (this.fatherNode != null) {
+			this.fatherNode.updateMinMaxContent(this);
+		}
+	}
+	
 	// return updated inode
 	public INode deleteLNode(LNode lNode) {
 		if (this.lNodeIds.contains(lNode.getID())) {
@@ -137,6 +165,27 @@ public class INode extends TDSTNode{
 	public void setFatherNode(INode iNode) {
 		this.fatherNode = iNode;
 	}
+	
+	public void reUpdateMinMaxValueToTheRoot() {
+		updateMinMaxValue();
+		if (this.fatherNode != null) {
+			this.fatherNode.reUpdateMinMaxValueToTheRoot();
+		}
+	}
+	
+	/*private void justReplace(TDSTNode oldNode, TDSTNode newNode) {
+		if (this.childNodes[0].equals(oldNode)) {
+			this.childNodes[0] = newNode;
+		}
+	}
+	
+	public INode replace(TDSTNode oldNode, TDSTNode newNode) {
+		if (oldNode instanceof LNode && newNode instanceof LNode) {
+			LNode odlLNode = (LNode) oldNode;
+			LNode newLNode = (LNode) newNode;
+			if (this.childNodes[0].equals(oldNode) )
+		}
+	}*/
 	
 	public INode insertNode(TDSTNode node) {
 		if (node instanceof LNode) {

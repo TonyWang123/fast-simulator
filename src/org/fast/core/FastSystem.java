@@ -156,6 +156,68 @@ public class FastSystem {
 		return null;
 	}
 	
+	private void rerunAndFastForwardToTheNextFunction(Function rerunF, List<DataChange> oldDCs) {
+		Function fNextToRerunF = null;
+		if (functionList.indexOf(rerunF) != functionList.size() - 1) {
+			// not the last one
+			fNextToRerunF = functionList.get(functionList.indexOf(rerunF) + 1);
+		}
+		rerunNum++;
+		rerunF.run();
+		System.out.println("fs: start find first infected function after rerun");
+		List<DataChange> DCs = Operation.convertToDCs(getWOList(rerunF.getFunctionInfo()));
+		List<DataChange> updatedDCs = DataChange.mergeDCs(oldDCs, DCs);
+		Set<Integer> infectedFunctionIds = new HashSet<Integer>();
+		for (DataChange dc: updatedDCs) {////////////////////////////////////
+			String xId = dc.geteXId();
+			TDST tdst = tm.get(xId);
+			// TODO should modify this part
+			for (int i = 0; i < functionList.indexOf(fNextToRerunF); i++) {
+				LNode lNode = functionList.get(i).getFunctionInfo().getLNode(xId);
+				if (lNode != null) {
+					tdst.deleteLNode(lNode);
+				}
+			}
+			LNode firstInfectedLNode = tdst.findFirstInfectedLNode(dc);
+			
+			if (firstInfectedLNode != null) {
+				int firstInfectedFunctionId = firstInfectedLNode.getFunctionId();
+				infectedFunctionIds.add(firstInfectedFunctionId);
+			}
+			
+			//add back deleted lnodes
+			for (int i = functionList.indexOf(rerunF); i >= 0; i--) {
+				LNode lNode = functionList.get(i).getFunctionInfo().getLNode(xId);
+				if (lNode != null) {
+					tdst.insertLNodeFromStart(lNode);
+				}
+			}
+		}
+		System.out.println("fs: end find first infected function after rerun");
+		// need to rerun this function
+		Function fromThisFunctionRerun = getFirstRerunFunction(fNextToRerunF, 
+				infectedFunctionIds);
+		
+		if (fromThisFunctionRerun == null) {
+			for (int i = functionList.indexOf(fNextToRerunF); 
+					i < functionList.size(); i++) {
+				Function fVirtualRun = functionList.get(i);
+				fVirtualRun.virtualRun(ds);
+			}
+		} else {
+			for (int i = functionList.indexOf(fNextToRerunF); 
+					i < functionList.indexOf(fromThisFunctionRerun); i++) {
+				Function fVirtualRun = functionList.get(i);
+				fVirtualRun.virtualRun(ds);
+			}
+			
+			rerunAndFastForwardToTheNextFunction(fromThisFunctionRerun, updatedDCs);
+		}
+		
+	}
+	
+	int rerunNum = 0;
+	
 	public void submitFunction(Function f) {
 		Function theEarliestNextFunction = findTheEarliestNextFunction(f);
 		if (theEarliestNextFunction == null) {
@@ -164,14 +226,15 @@ public class FastSystem {
 			f.run();
 		} else {
 			//insert just before that function
-			functionList.add(functionList.indexOf(theEarliestNextFunction), f);
 			ds.rollbackBefore(theEarliestNextFunction);
 			f.run();
+			//System.out.println("fs: start find first infected function in submission");
 			List<DataChange> DCs = Operation.convertToDCs(getWOList(f.getFunctionInfo()));
 			Set<Integer> infectedFunctionIds = new HashSet<Integer>();
 			for (DataChange dc: DCs) {
 				String xId = dc.geteXId();
 				TDST tdst = tm.get(xId);
+				// TODO should modify this part
 				for (int i = 0; i < functionList.indexOf(theEarliestNextFunction); i++) {
 					LNode lNode = functionList.get(i).getFunctionInfo().getLNode(xId);
 					if (lNode != null) {
@@ -179,18 +242,36 @@ public class FastSystem {
 					}
 				}
 				LNode firstInfectedLNode = tdst.findFirstInfectedLNode(dc);
-				int firstInfectedFunctionId = firstInfectedLNode.getFunctionId();
-				infectedFunctionIds.add(firstInfectedFunctionId);
+				
+				if (firstInfectedLNode != null) {
+					int firstInfectedFunctionId = firstInfectedLNode.getFunctionId();
+					infectedFunctionIds.add(firstInfectedFunctionId);
+				}
+				
+				//add this lnode
+				LNode thislNode = f.getFunctionInfo().getLNode(xId);
+				tdst.insertLNodeFromStart(thislNode);
+				
+				//add back deleted lnodes
+				for (int i = functionList.indexOf(theEarliestNextFunction) - 1; 
+						i >= 0; i--) {
+					LNode lNode = functionList.get(i).getFunctionInfo().getLNode(xId);
+					if (lNode != null) {
+						tdst.insertLNodeFromStart(lNode);
+					}
+				}
 			}
-			
+			//System.out.println("fs: end find first infected function in submission");
+			// need to rerun this function
 			Function fromThisFunctionRerun = getFirstRerunFunction(theEarliestNextFunction, 
 					infectedFunctionIds);
+			
 			
 			if (fromThisFunctionRerun == null) {
 				for (int i = functionList.indexOf(theEarliestNextFunction); 
 						i < functionList.size(); i++) {
-					Function fRealRun = functionList.get(i);
-					fRealRun.run();
+					Function fVirtualRun = functionList.get(i);
+					fVirtualRun.virtualRun(ds);
 				}
 			} else {
 				for (int i = functionList.indexOf(theEarliestNextFunction); 
@@ -199,12 +280,12 @@ public class FastSystem {
 					fVirtualRun.virtualRun(ds);
 				}
 				
-				for (int i = functionList.indexOf(fromThisFunctionRerun); 
-						i < functionList.size(); i++) {
-					Function fRealRun = functionList.get(i);
-					fRealRun.run();
-				}
+				rerunAndFastForwardToTheNextFunction(fromThisFunctionRerun, DCs);
 			}
+			
+			functionList.add(functionList.indexOf(theEarliestNextFunction), f);
 		}
+		System.out.println("fs: rerun num: " + rerunNum);
+		rerunNum = 0;
 	}
 }
