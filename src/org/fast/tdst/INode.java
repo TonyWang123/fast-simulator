@@ -62,18 +62,22 @@ public class INode extends TDSTNode{
 	}
 	
 	private void updateContentOnlyConsideringL(LNode lNode) {
-		if (lNode.getD() > 0) {
-			this.minPosD = lNode.getD();
-			this.maxNegD = Integer.MIN_VALUE;
-		} else {
-			this.minPosD = Integer.MAX_VALUE;
-			this.maxNegD = lNode.getD();
+		if (childNodes[1] != null && childNodes[1].equals(lNode)) {
+			if (lNode.getD() > 0) {
+				this.minPosD = lNode.getD();
+				this.maxNegD = Integer.MIN_VALUE;
+			} else {
+				this.minPosD = Integer.MAX_VALUE;
+				this.maxNegD = lNode.getD();
+			}
 		}
 	}
 	
 	private void updateContentOnlyConsideringI(INode iNode) {
-		this.minPosD = iNode.minPosD;
-		this.maxNegD = iNode.maxNegD;
+		if (childNodes[1] != null && childNodes[1].equals(iNode)) {
+			this.minPosD = iNode.minPosD;
+			this.maxNegD = iNode.maxNegD;
+		}
 	}
 	
 	public void updateMinMaxContent(TDSTNode node) {
@@ -136,10 +140,10 @@ public class INode extends TDSTNode{
 	}
 	
 	private void validateLNode(LNode lNode) {
-		if (lNode.getD() > 0 && minPosD < lNode.getD()) {
+		if (lNode.getD() > 0 && minPosD > lNode.getD()) {
 			minPosD = lNode.getD();
 		}
-		if (lNode.getD() < 0 && maxNegD > lNode.getD()) {
+		if (lNode.getD() < 0 && maxNegD < lNode.getD()) {
 			maxNegD = lNode.getD();
 		}
 	}
@@ -157,7 +161,7 @@ public class INode extends TDSTNode{
 			this.minPosD = iNode.getMinPosD();
 		}
 		
-		if (iNode.getMaxNegD() < this.maxNegD) {
+		if (iNode.getMaxNegD() > this.maxNegD) {
 			this.maxNegD = iNode.getMaxNegD();
 		}
 	}
@@ -268,7 +272,9 @@ public class INode extends TDSTNode{
 						returnLNode = lNode;
 					}
 				}
-			} else if (this.childNodes[1] != null) {
+			}
+			
+			if (returnLNode == null & this.childNodes[1] != null) {
 				if (this.childNodes[1] instanceof LNode) {
 					LNode lNode = (LNode) this.childNodes[1];
 					if (lNode.isInfected(dc)) {

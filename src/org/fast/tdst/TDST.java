@@ -24,6 +24,26 @@ public class TDST {
 		return this.xid;
 	}
 	
+	public int getMinDelta() {
+		if (rootNode instanceof LNode) {
+			LNode lNode = (LNode) rootNode;
+			return lNode.getD();
+		} else {
+			INode iNode = (INode) rootNode;
+			return iNode.getMinPosD();
+		}
+	}
+	
+	public int getMaxDelta() {
+		if (rootNode instanceof LNode) {
+			LNode lNode = (LNode) rootNode;
+			return lNode.getD();
+		} else {
+			INode iNode = (INode) rootNode;
+			return iNode.getMaxNegD();
+		}
+	}
+	
 	//return the first infected lnode
 	public LNode findFirstInfectedLNode(DataChange dc) {
 		if (rootNode == null) {
@@ -97,6 +117,7 @@ public class TDST {
 	
 	public void insertLNode(LNode lNode) {
 		if (rootNode == null) {
+			//System.out.println("tdst: first insert lnode");
 			this.leafNodes.add(lNode);
 			INode iNode = new INode();
 			iNode.insertNode(lNode);

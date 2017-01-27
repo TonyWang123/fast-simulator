@@ -76,13 +76,13 @@ public class Link {
 		if (currentBW >= bw) {
 			TestOperation to = new TestOperation(this.id, 
 					this.getAttributeId(Link.Attribute.BANDWIDTH), 
-					OperatorType.GEQ, bw, currentBW, f.getFunctionInfo());
+					OperatorType.LEQ, bw, currentBW, f.getFunctionInfo());
 			f.addOperation(to);
 			return true;
 		} else {
 			TestOperation to = new TestOperation(this.id, 
 					this.getAttributeId(Link.Attribute.BANDWIDTH), 
-					OperatorType.L, bw, currentBW, f.getFunctionInfo());
+					OperatorType.G, bw, currentBW, f.getFunctionInfo());
 			f.addOperation(to);
 			return false;
 		}

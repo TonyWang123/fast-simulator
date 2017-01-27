@@ -72,19 +72,19 @@ public class PCC {
 		System.out.println("total finish time: " + (System.currentTimeMillis() - totalStartTime));
 		
 		
-		/*PCRequest pcr1 = new PCRequest(1, 10, 1); //100
+		/*PCRequest pcr1 = new PCRequest(1, 20, 1, 1, 2); //100
 		pcr1.submitFunction();
-		PCRequest pcr2 = new PCRequest(2, 10, 2);
+		PCRequest pcr2 = new PCRequest(2, 30, 2, 1, 2);
 		pcr2.submitFunction();
-		PCRequest pcr3 = new PCRequest(3, 10, 3);
+		PCRequest pcr3 = new PCRequest(3, 30, 5, 1, 2);
 		pcr3.submitFunction();
-		PCRequest pcr4 = new PCRequest(4, 30, 5);
+		PCRequest pcr4 = new PCRequest(4, 40, 3, 1, 2);
 		pcr4.submitFunction();
-		PCRequest pcr5 = new PCRequest(5, 50, 6);
+		PCRequest pcr5 = new PCRequest(5, 50, 6, 1, 2);
 		pcr5.submitFunction();
-		PCRequest pcr6 = new PCRequest(6, 50, 7);
+		PCRequest pcr6 = new PCRequest(6, 50, 7, 1, 2);
 		pcr6.submitFunction();
-		PCRequest pcr7 = new PCRequest(7, 10, 4);
+		PCRequest pcr7 = new PCRequest(7, 10, 4, 1, 2);
 		pcr7.submitFunction();*/
 	}
 
