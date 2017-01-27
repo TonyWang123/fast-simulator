@@ -80,6 +80,12 @@ public class PCRequest extends Function{
 	public void run() {
 		this.getFunctionInfo().clearOPs();
 		
+		try {
+			Thread.sleep(5);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//System.out.println("pcr: running " + getFunctionInfo().getFunctionId());
 		List<Link> links = getTopology();
 		

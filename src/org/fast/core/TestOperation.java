@@ -34,8 +34,10 @@ public class TestOperation extends Operation{
 		else return false;
 	}
 	
-	public LNode convert2LNode(int functionId) {
-		LNode lNode = new LNode(functionId, (Integer) testValue, (Integer) realValue, operator, fi);
+	public LNode convert2LNode() {
+		LNode lNode = new LNode(fi.getFunctionId(), 
+				(Integer) testValue, (Integer) realValue, operator, fi, 
+				DSUtil.constructXId(dataId, attributeId));
 		return lNode;
 	}
 	

@@ -134,6 +134,16 @@ public class FastSystem {
 		return null;
 	}
 	
+	private List<TestOperation> getTOList(FunctionInfo fi) {
+		List<TestOperation> toList = new LinkedList<TestOperation>();
+		for (Operation op: fi.getOPs()) {
+			if (op instanceof TestOperation) {
+				toList.add((TestOperation) op);
+			}
+		}
+		return toList;
+	}
+	
 	private List<WriteOperation> getWOList(FunctionInfo fi) {
 		List<WriteOperation> woList = new LinkedList<WriteOperation>();
 		for (Operation op: fi.getOPs()) {
@@ -164,14 +174,22 @@ public class FastSystem {
 		}
 		rerunNum++;
 		rerunF.run();
-		System.out.println("fs: start find first infected function after rerun");
+		//System.out.println("fs: start find first infected function after rerun");
 		List<DataChange> DCs = Operation.convertToDCs(getWOList(rerunF.getFunctionInfo()));
 		List<DataChange> updatedDCs = DataChange.mergeDCs(oldDCs, DCs);
 		Set<Integer> infectedFunctionIds = new HashSet<Integer>();
 		for (DataChange dc: updatedDCs) {////////////////////////////////////
 			String xId = dc.geteXId();
 			TDST tdst = tm.get(xId);
-			// TODO should modify this part
+			LNode lNode = rerunF.getFunctionInfo().getLNode(xId);
+			tdst.updateMinMaxContent(lNode);
+			LNode firstInfectedLNode = tdst.findFirstInfectedLNode(dc);
+			if (firstInfectedLNode != null) {
+				int firstInfectedFunctionId = firstInfectedLNode.getFunctionId();
+				infectedFunctionIds.add(firstInfectedFunctionId);
+			}
+			tdst.recoverMinMaxContent(lNode);
+			/*// TODO should modify this part
 			for (int i = 0; i < functionList.indexOf(fNextToRerunF); i++) {
 				LNode lNode = functionList.get(i).getFunctionInfo().getLNode(xId);
 				if (lNode != null) {
@@ -191,9 +209,9 @@ public class FastSystem {
 				if (lNode != null) {
 					tdst.insertLNodeFromStart(lNode);
 				}
-			}
+			}*/
 		}
-		System.out.println("fs: end find first infected function after rerun");
+		//System.out.println("fs: end find first infected function after rerun");
 		// need to rerun this function
 		Function fromThisFunctionRerun = getFirstRerunFunction(fNextToRerunF, 
 				infectedFunctionIds);
@@ -219,11 +237,23 @@ public class FastSystem {
 	int rerunNum = 0;
 	
 	public void submitFunction(Function f) {
+		long startTime = System.currentTimeMillis();
 		Function theEarliestNextFunction = findTheEarliestNextFunction(f);
 		if (theEarliestNextFunction == null) {
 			//insert at the end
 			functionList.add(f);
 			f.run();
+			System.out.println("finish time: " + (System.currentTimeMillis() - startTime));
+			//insert this f lnode
+			List<LNode> LNs = f.getFunctionInfo().getAllLNodes();
+			//List<LNode> LNs = Operation.convertToLNs(getTOList(f.getFunctionInfo()));
+			for (LNode lNode: LNs) {
+				String xId = lNode.getXId();
+				TDST tdst = tm.get(xId);
+				//add this lnode
+				//System.out.println("fs: inserted lNode " + lNode.getFunctionId() + " for " + xId);
+				tdst.insertLNode(lNode);
+			}
 		} else {
 			//insert just before that function
 			ds.rollbackBefore(theEarliestNextFunction);
@@ -232,9 +262,24 @@ public class FastSystem {
 			List<DataChange> DCs = Operation.convertToDCs(getWOList(f.getFunctionInfo()));
 			Set<Integer> infectedFunctionIds = new HashSet<Integer>();
 			for (DataChange dc: DCs) {
+				System.out.println("fs: in the loop of dc " + dc.geteXId());
 				String xId = dc.geteXId();
 				TDST tdst = tm.get(xId);
-				// TODO should modify this part
+				if (theEarliestNextFunction.getFunctionInfo().containsXId(xId)) {
+					//System.out.println("fs: fi correct");
+				} else {
+					//System.out.println("fs: fi wrong");
+				}
+				LNode lNode = theEarliestNextFunction.getFunctionInfo().getLNode(xId);
+				//System.out.println("fs: need to update lNode " + lNode.getFunctionId() + " for " + xId);
+				tdst.updateMinMaxContent(lNode);
+				LNode firstInfectedLNode = tdst.findFirstInfectedLNode(dc);
+				if (firstInfectedLNode != null) {
+					int firstInfectedFunctionId = firstInfectedLNode.getFunctionId();
+					infectedFunctionIds.add(firstInfectedFunctionId);
+				}
+				tdst.recoverMinMaxContent(lNode);
+				/*// TODO should modify this part
 				for (int i = 0; i < functionList.indexOf(theEarliestNextFunction); i++) {
 					LNode lNode = functionList.get(i).getFunctionInfo().getLNode(xId);
 					if (lNode != null) {
@@ -259,13 +304,14 @@ public class FastSystem {
 					if (lNode != null) {
 						tdst.insertLNodeFromStart(lNode);
 					}
-				}
+				}*/
 			}
+			System.out.println("fs: before getFirstRerunFunction");
 			//System.out.println("fs: end find first infected function in submission");
 			// need to rerun this function
 			Function fromThisFunctionRerun = getFirstRerunFunction(theEarliestNextFunction, 
 					infectedFunctionIds);
-			
+			System.out.println("fs: after getFirstRerunFunction");
 			
 			if (fromThisFunctionRerun == null) {
 				for (int i = functionList.indexOf(theEarliestNextFunction); 
@@ -274,15 +320,47 @@ public class FastSystem {
 					fVirtualRun.virtualRun(ds);
 				}
 			} else {
+				System.out.println("fs fromThisFunctionRerun is not null");
 				for (int i = functionList.indexOf(theEarliestNextFunction); 
 						i < functionList.indexOf(fromThisFunctionRerun); i++) {
 					Function fVirtualRun = functionList.get(i);
 					fVirtualRun.virtualRun(ds);
 				}
 				
+				/*for (int i = functionList.indexOf(fromThisFunctionRerun); 
+						i < functionList.size(); i++) {
+						Function fRealRun = functionList.get(i);
+						fRealRun.run();
+						rerunNum++;
+				}*/
+				
 				rerunAndFastForwardToTheNextFunction(fromThisFunctionRerun, DCs);
 			}
-			
+			System.out.println("finish time: " + (System.currentTimeMillis() - startTime));
+			//insert this f lnode
+			for (TDST tdst: tm.getAllTDST()) {
+				// TODO should modify this part
+				System.out.println("fs: loop in tdst" + tdst.getXId());
+				for (int i = 0; i < functionList.indexOf(theEarliestNextFunction); i++) {
+					LNode lNode = functionList.get(i).getFunctionInfo().getLNode(tdst.getXId());
+					if (lNode != null) {
+						tdst.deleteLNode(lNode);
+					}
+				}
+				
+				//add this lnode
+				LNode thislNode = f.getFunctionInfo().getLNode(tdst.getXId());
+				tdst.insertLNodeFromStart(thislNode);
+				
+				//add back deleted lnodes
+				for (int i = functionList.indexOf(theEarliestNextFunction) - 1; 
+						i >= 0; i--) {
+					LNode lNode = functionList.get(i).getFunctionInfo().getLNode(tdst.getXId());
+					if (lNode != null) {
+						tdst.insertLNodeFromStart(lNode);
+					}
+				}
+			}
 			functionList.add(functionList.indexOf(theEarliestNextFunction), f);
 		}
 		System.out.println("fs: rerun num: " + rerunNum);

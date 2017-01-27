@@ -20,6 +20,10 @@ public class TDST {
 		this.xid = xid;
 	}
 	
+	public String getXId() {
+		return this.xid;
+	}
+	
 	//return the first infected lnode
 	public LNode findFirstInfectedLNode(DataChange dc) {
 		if (rootNode == null) {
@@ -68,8 +72,10 @@ public class TDST {
 	
 	public void insertLNodeFromStart(LNode lNode) {
 		if (rootNode == null) {
-			rootNode = lNode;
 			this.leafNodes.add(0, lNode);
+			INode iNode = new INode();
+			iNode.insertNode(lNode);
+			rootNode = iNode;
 			return;
 		}
 		LNode firstLNode = leafNodes.get(0);
@@ -91,11 +97,12 @@ public class TDST {
 	
 	public void insertLNode(LNode lNode) {
 		if (rootNode == null) {
-			rootNode = lNode;
 			this.leafNodes.add(lNode);
+			INode iNode = new INode();
+			iNode.insertNode(lNode);
+			rootNode = iNode;
 			return;
 		}
-		
 		LNode lastLNode = leafNodes.get(leafNodes.size() - 1);
 		INode iNode = lastLNode.getFatherNode();
 		INode newINode = iNode.insertNode(lNode);
@@ -137,18 +144,25 @@ public class TDST {
 		return returnLNode;
 	}
 	
-	// this lNode is the new inserted one
-	// should call this method after the insert
 	public void updateMinMaxContent(LNode lNode) {
-		if (this.rootNode instanceof LNode) {
+		if (this.rootNode == null || this.rootNode.equals(lNode)) {
 			// this rootNode should be the input lNode
 			return;
+		}
+		if (leafNodes.contains(lNode)) {
+			//System.out.println("tdst: correct");
+		} else {
+			//System.out.println("tdst: wrong");
 		}
 		INode fatherINode = lNode.getFatherNode();
 		fatherINode.updateMinMaxContent(lNode);
 	}
 	
 	public void recoverMinMaxContent(LNode lNode) {
+		if (this.rootNode == null || this.rootNode.equals(lNode)) {
+			// this rootNode should be the input lNode
+			return;
+		}
 		INode fatherINode = lNode.getFatherNode();
 		fatherINode.reUpdateMinMaxValueToTheRoot();
 	}

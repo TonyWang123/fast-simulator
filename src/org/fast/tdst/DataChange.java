@@ -40,8 +40,8 @@ public class DataChange {
 	}
 	
 	public static List<DataChange> mergeDCs(List<DataChange> DC1, List<DataChange> DC2) {
-		System.out.println("dc: dc1.size " + DC1.size());
-		System.out.println("dc: dc2.size " + DC2.size());
+		//System.out.println("dc: dc1.size " + DC1.size());
+		//System.out.println("dc: dc2.size " + DC2.size());
 		List<DataChange> returnDC = new LinkedList<DataChange>();
 		Map<String, List<DataChange>> xid2dc = new HashMap<String, List<DataChange>>();
 		for (DataChange dc1: DC1) {
@@ -70,7 +70,7 @@ public class DataChange {
 			DataChange dc = constructDCByMerging(xid, dcs);
 			returnDC.add(dc);
 		}
-		System.out.println("dc: returnDC.size " + returnDC.size());
+		//System.out.println("dc: returnDC.size " + returnDC.size());
 		return returnDC;
 	}
 }

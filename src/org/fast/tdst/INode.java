@@ -190,12 +190,12 @@ public class INode extends TDSTNode{
 	public INode insertNode(TDSTNode node) {
 		if (node instanceof LNode) {
 			LNode lNode = (LNode) node;
-			if (childNodes[0] != null) {
+			if (childNodes[0] == null) {
 				childNodes[0] = lNode;
 				lNode.setFatherNode(this);
 				validateLNode(lNode);
 				return null;
-			} else if (childNodes[1] != null) {
+			} else if (childNodes[1] == null) {
 				childNodes[1] = lNode;
 				lNode.setFatherNode(this);
 				validateLNode(lNode);
@@ -215,12 +215,12 @@ public class INode extends TDSTNode{
 		} else {
 			// INode
 			INode iNode = (INode) node;
-			if (childNodes[0] != null) {
+			if (childNodes[0] == null) {
 				childNodes[0] = iNode;
 				iNode.setFatherNode(this);
 				validateINode(iNode);
 				return null;
-			} else if (childNodes[1] != null) {
+			} else if (childNodes[1] == null) {
 				childNodes[1] = iNode;
 				iNode.setFatherNode(this);
 				validateINode(iNode);

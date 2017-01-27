@@ -14,6 +14,8 @@ public class LNode extends TDSTNode{
 		NEQ
 	}
 	
+	private String xid;
+	
 	private int id;
 	
 	private int t;
@@ -26,12 +28,17 @@ public class LNode extends TDSTNode{
 	
 	private FunctionInfo fi;
 	
-	public LNode(int id, int t, int x, OperatorType ot, FunctionInfo fi) {
+	public LNode(int id, int t, int x, OperatorType ot, FunctionInfo fi, String xid) {
 		this.id = id;
 		this.t = t;
 		this.x = x;
 		this.ot = ot;
 		this.fi = fi;
+		this.xid = xid;
+	}
+	
+	public String getXId() {
+		return this.xid;
 	}
 	
 	public FunctionInfo getFunctionInfo() {

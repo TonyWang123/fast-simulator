@@ -63,10 +63,10 @@ public class PCC {
 			int srcNodeId = (int )(Math.random() * nodeNames.size());
 			int dstNodeId = (int )(Math.random() * nodeNames.size());
 			if (srcNodeId == dstNodeId) continue;
-			long startTime = System.currentTimeMillis();
+			//long startTime = System.currentTimeMillis();
 			PCRequest pcr = new PCRequest(i, bw, priority, srcNodeId, dstNodeId);
 			pcr.submitFunction();
-			System.out.println("finish time: " + (System.currentTimeMillis() - startTime));
+			//System.out.println("finish time: " + (System.currentTimeMillis() - startTime));
 		}
 		
 		System.out.println("total finish time: " + (System.currentTimeMillis() - totalStartTime));
